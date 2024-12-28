@@ -24,8 +24,8 @@ export const Experience = () => {
           />
         ))
       }
-      <AnimatedWoman /> {/* IMPRIMO A LA MUJER POR PANTALLA */}
-      <AnimatedWoman position-x={1} hairColor="red" topColor="blue" /> 
+      {/*<AnimatedWoman />  IMPRIMO A LA MUJER POR PANTALLA 
+      <AnimatedWoman position-x={1} hairColor="red" topColor="blue" /> */}
       {/* <mesh>
         <boxGeometry />
         <meshNormalMaterial />

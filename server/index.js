@@ -11,7 +11,7 @@ io.listen(3001);
 const characters = []; // Array de caracteres que ser iran importando a medida que la gente se vaya uniendo al servidor
 
 const generateRandomPosition = () => {
-    return [Math.random() * 3, Math.random() * 100];
+    return [Math.random() * 3, 0, Math.random() * 3];
 }
 
 const generateRandomHexColor = () => {
@@ -34,7 +34,7 @@ io.on("connection", (socket) => {
 
     socket.on("disconnect", () => {
         console.log("user desconnected");
-        characters.splice(characters.findIndex((characters) => characters.id === socket.id),
+        characters.splice(characters.findIndex((character) => character.id === socket.id),
             1
         );
 

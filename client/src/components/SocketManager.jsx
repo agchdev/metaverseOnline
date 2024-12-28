@@ -21,6 +21,7 @@ export const SocketManager = () => {
         }
 
         function onCharacters(value) {
+            console.log("Received characters:", value);
             setCharacters(value);
         }
 
