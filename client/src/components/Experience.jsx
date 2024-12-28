@@ -1,11 +1,14 @@
-import { ContactShadows, Environment, OrbitControls } from "@react-three/drei";
+import { ContactShadows, Environment, OrbitControls, useCursor } from "@react-three/drei";
 
 import { AnimatedWoman } from "./AnimatedWoman";
 import { useAtom } from "jotai";
-import { charactersAtom } from "./SocketManager";
+import { charactersAtom, socket } from "./SocketManager";
+import { useState } from "react";
 export const Experience = () => {
 
   const [characters] = useAtom(charactersAtom);
+  const [onFloor, setOnFloor] = useState(false);
+  useCursor(onFloor? "pointer" : "auto");
 
   return (
     <>
@@ -13,6 +16,15 @@ export const Experience = () => {
       <ambientLight intensity={.3} />
       <ContactShadows blur={2} />
       <OrbitControls />
+      <mesh rotation-x={-Math.PI / 2}
+        position-y={[-0.001]}
+        onClick={(e) => socket.emit("move"[e.point.x, 0, e.point.z])}
+        onPointerEnter={() => setOnFloor(true)}
+        onPointerLeave={() => setOnFloor(false)}
+      >
+        <planeGeometry args={[10, 10]} />
+        <meshStandardMaterial color={"#f0f0f0"} />
+      </mesh>
       {
         characters.map((character) => (
           <AnimatedWoman

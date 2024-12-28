@@ -38,5 +38,6 @@ io.on("connection", (socket) => {
             1
         );
 
+        io.emit("characters", characters); // Se refiere a que todo el mundo recibe ese mensaje
     })
 })
