@@ -10,8 +10,43 @@ io.listen(3001);
 
 const characters = []; // Array de caracteres que ser iran importando a medida que la gente se vaya uniendo al servidor
 
+const items = {
+    table: {
+        name: "Table",
+        size: [3,6],
+    },
+    chair: {
+        name: "Chair",
+        size: [2,2],
+    },
+    couch: {
+        name: "Couch Small",
+        size: [3,2],
+    },
+    stepCubbyStorage: {
+        name: "Step Cubby Storage",
+        size: [4,2],
+    },
+}
+
+const map = {
+    size: [10,10],
+    gridDivision: 2,
+    items: [
+        {
+            ...items.chair,
+            gridPosition: [4,4],
+        },
+        {
+            ...items.chair,
+            gridPosition: [4,6],
+            rotation: 2,
+        }
+    ]
+};
+
 const generateRandomPosition = () => {
-    return [Math.random() * 3, 0, Math.random() * 3];
+    return [Math.random() * map.size[0], 0, Math.random() * map.size[1]];
 }
 
 const generateRandomHexColor = () => {
@@ -29,7 +64,12 @@ io.on("connection", (socket) => {
         BottomColor: generateRandomHexColor(),
     })
 
-    socket.emit("hello"); // Se refiere a que solo esa persona recibe ese mensaje
+    socket.emit("hello", {
+        map,
+        characters,
+        id: socket.id,
+        items,
+    }); // Se refiere a que solo esa persona recibe ese mensaje
     io.emit("characters", characters); // Se refiere a que todo el mundo recibe ese mensaje
 
     socket.on("move", (position) => {
