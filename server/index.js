@@ -6,14 +6,37 @@ const io = new Server({
     },
 })
 
-io.listen(3000);
+io.listen(3001);
 
-io.on("conection", (socket) => {
+const characters = []; // Array de caracteres que ser iran importando a medida que la gente se vaya uniendo al servidor
+
+const generateRandomPosition = () => {
+    return [Math.random() * 3, Math.random() * 100];
+}
+
+const generateRandomHexColor = () => {
+    return "#" + Math.floor(Math.random() * 16777215).toString(16);
+}
+
+io.on("connection", (socket) => {
     console.log("user connected");
 
-    socket.emit("hello");
+    characters.push({
+        id: socket.id,
+        position: generateRandomPosition(),
+        hairColor: generateRandomHexColor(),
+        topColor: generateRandomHexColor(),
+        BottomColor: generateRandomHexColor(),
+    })
+
+    socket.emit("hello"); // Se refiere a que solo esa persona recibe ese mensaje
+    io.emit("characters", characters); // Se refiere a que todo el mundo recibe ese mensaje
 
     socket.on("disconnect", () => {
-        console.log("user desconnected")
+        console.log("user desconnected");
+        characters.splice(characters.findIndex((characters) => characters.id === socket.id),
+            1
+        );
+
     })
 })
