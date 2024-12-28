@@ -1,8 +1,10 @@
 
-import React, { useEffect, useState } from 'react'
-import { useGraph } from '@react-three/fiber'
+import React, { useEffect, useMemo, useState } from 'react'
+import { useFrame, useGraph } from '@react-three/fiber'
 import { useGLTF, useAnimations } from '@react-three/drei'
 import { SkeletonUtils } from 'three-stdlib'
+
+const MOVEMENT_SPEED = 0.032;
 
 export function AnimatedWoman({
   hairColor = "green",
@@ -10,6 +12,9 @@ export function AnimatedWoman({
   bottomColor = "brown",
   ...props
 }) {
+
+  const position = useMemo(() => props.position, []);
+
   const group = React.useRef()
   const { scene, animations } = useGLTF('/models/Animated Woman.glb')
   const clone = React.useMemo(() => SkeletonUtils.clone(scene), [scene])
@@ -24,8 +29,19 @@ export function AnimatedWoman({
     return () => actions[animation]?.fadeOut(0.5);
   }, [animation]);
 
+  useFrame(() => {
+    if (group.current.position.distanceTo(props.position) > 0.1) {
+      const direction = group.current.position.clone().sub(props.position).normalize().multiplyScalar(MOVEMENT_SPEED);
+      group.current.position.sub(direction);
+      group.current.lookAt(props.position);
+      setAnimation("CharacterArmature|Run");
+    }else{
+      setAnimation("CharacterArmature|Idle");
+    }
+  })
+
   return (
-    <group ref={group} {...props} dispose={null}>
+    <group ref={group} {...props} position={position} dispose={null}>
       <group name="Root_Scene">
         <group name="RootNode">
           <group name="CharacterArmature" rotation={[-Math.PI / 2, 0, 0]} scale={100}>

@@ -32,6 +32,13 @@ io.on("connection", (socket) => {
     socket.emit("hello"); // Se refiere a que solo esa persona recibe ese mensaje
     io.emit("characters", characters); // Se refiere a que todo el mundo recibe ese mensaje
 
+    socket.on("move", (position) => {
+        const character = characters.find((character) => character.id === socket.id);
+        console.log("hola_=>",character)
+        character.position = position;
+        io.emit("characters", characters); // Se refiere a que todo el mundo recibe ese mensaje
+    })
+
     socket.on("disconnect", () => {
         console.log("user desconnected");
         characters.splice(characters.findIndex((character) => character.id === socket.id),

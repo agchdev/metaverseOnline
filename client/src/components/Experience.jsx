@@ -4,11 +4,12 @@ import { AnimatedWoman } from "./AnimatedWoman";
 import { useAtom } from "jotai";
 import { charactersAtom, socket } from "./SocketManager";
 import { useState } from "react";
+import * as THREE from "three";
 export const Experience = () => {
 
   const [characters] = useAtom(charactersAtom);
   const [onFloor, setOnFloor] = useState(false);
-  useCursor(onFloor? "pointer" : "auto");
+  useCursor(onFloor);
 
   return (
     <>
@@ -16,9 +17,10 @@ export const Experience = () => {
       <ambientLight intensity={.3} />
       <ContactShadows blur={2} />
       <OrbitControls />
-      <mesh rotation-x={-Math.PI / 2}
+      <mesh
+        rotation-x={-Math.PI / 2}
         position-y={[-0.001]}
-        onClick={(e) => socket.emit("move"[e.point.x, 0, e.point.z])}
+        onClick={(e) => socket.emit("move", [e.point.x, 0, e.point.z])}
         onPointerEnter={() => setOnFloor(true)}
         onPointerLeave={() => setOnFloor(false)}
       >
@@ -29,7 +31,13 @@ export const Experience = () => {
         characters.map((character) => (
           <AnimatedWoman
             key={character.id}
-            position={character.position}
+            position={
+              new THREE.Vector3(
+                character.position[0],
+                character.position[1],
+                character.position[2]
+              )
+            }
             hairColor={character.hairColor}
             topColor={character.topColor}
             bottomColor={character.BottomColor}
