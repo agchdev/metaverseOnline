@@ -30,17 +30,31 @@ const items = {
 }
 
 const map = {
-    size: [10,10],
+    size: [20,10],
     gridDivision: 2,
     items: [
         {
             ...items.chair,
-            gridPosition: [4,4],
+            gridPosition: [12,10],
+            rotation: 1,
         },
         {
             ...items.chair,
-            gridPosition: [4,6],
-            rotation: 2,
+            gridPosition: [7,10],
+            rotation: 3,
+        },
+        {
+            ...items.table,
+            gridPosition: [9,9],
+            rotation: 1,
+        },
+        {
+            ...items.couch,
+            gridPosition: [4,4],
+        },
+        {
+            ...items.stepCubbyStorage,
+            gridPosition: [0,0],
         }
     ]
 };
