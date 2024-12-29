@@ -7,12 +7,15 @@ import { useState } from "react";
 import * as THREE from "three";
 import { Items } from "./items";
 import { useThree } from "@react-three/fiber";
+import { useGrid } from "../hooks/useGrid";
+
 export const Experience = () => {
 
   const [characters] = useAtom(charactersAtom);
   const [map] = useAtom(mapAtom);
   const [onFloor, setOnFloor] = useState(false);
   useCursor(onFloor);
+  const {vector3ToGrid, gridToGrid3} = useGrid();
 
   const scene = useThree((state) => state.scene);
   const [user] = useAtom(userAtom);
@@ -20,7 +23,11 @@ export const Experience = () => {
   const onCharacterMove = (e) => {
     const character = scene.getObjectByName(`character-${user}`);
     if(!character) return;
-    socket.emit("move", [e.point.x, 0, e.point.z]);
+    socket.emit(
+      "move", 
+      vector3ToGrid(character.position), 
+      vector3ToGrid(e.point)
+    );
   }
 
   return (
@@ -50,13 +57,8 @@ export const Experience = () => {
           <AnimatedWoman
             key={character.id}
             id={character.id}
-            position={
-              new THREE.Vector3(
-                character.position[0] / map.gridDivision + 1 / map.gridDivision / 2,
-                0,
-                character.position[1] / map.gridDivision + 1 / map.gridDivision / 2,
-              )
-            }
+            path={character.path}
+            position={ gridToGrid3(character.position) }
             hairColor={character.hairColor}
             topColor={character.topColor}
             bottomColor={character.BottomColor}

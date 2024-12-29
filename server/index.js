@@ -451,7 +451,6 @@ const updateGrid = () => {
 };
 
 updateGrid();
-console.log(findPath([3, 3], [4, 7]));
 
 const generateRandomPosition = () => {
     for(let i = 0; i < 100; i++) {
@@ -497,6 +496,7 @@ io.on("connection", (socket) => {
         }
         character.position = from;
         character.path = path;
+        console.log(path);
         io.emit("characters", characters);
     });
 
