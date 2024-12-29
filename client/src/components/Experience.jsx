@@ -2,16 +2,26 @@ import { ContactShadows, Environment, OrbitControls, useCursor } from "@react-th
 
 import { AnimatedWoman } from "./AnimatedWoman";
 import { useAtom } from "jotai";
-import { charactersAtom, mapAtom, socket } from "./SocketManager";
+import { charactersAtom, mapAtom, socket, userAtom } from "./SocketManager";
 import { useState } from "react";
 import * as THREE from "three";
 import { Items } from "./items";
+import { useThree } from "@react-three/fiber";
 export const Experience = () => {
 
   const [characters] = useAtom(charactersAtom);
   const [map] = useAtom(mapAtom);
   const [onFloor, setOnFloor] = useState(false);
   useCursor(onFloor);
+
+  const scene = useThree((state) => state.scene);
+  const [user] = useAtom(userAtom);
+
+  const onCharacterMove = (e) => {
+    const character = scene.getObjectByName(`character-${user}`);
+    if(!character) return;
+    socket.emit("move", [e.point.x, 0, e.point.z]);
+  }
 
   return (
     <>
@@ -26,7 +36,7 @@ export const Experience = () => {
       <mesh
         rotation-x={-Math.PI / 2}
         position-y={[-0.001]}
-        onClick={(e) => socket.emit("move", [e.point.x, 0, e.point.z])}
+        onClick={onCharacterMove}
         onPointerEnter={() => setOnFloor(true)}
         onPointerLeave={() => setOnFloor(false)}
         position-x={map.size[0] / 2}
@@ -44,7 +54,7 @@ export const Experience = () => {
               new THREE.Vector3(
                 character.position[0] / map.gridDivision + 1 / map.gridDivision / 2,
                 0,
-                character.position[2] / map.gridDivision + 1 / map.gridDivision / 2,
+                character.position[1] / map.gridDivision + 1 / map.gridDivision / 2,
               )
             }
             hairColor={character.hairColor}
