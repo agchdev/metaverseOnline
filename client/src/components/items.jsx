@@ -8,7 +8,9 @@ export const Items = ({ item }) => {
     const { name, gridPosition, size, rotation } = item;
     const [map] = useAtom(mapAtom);
     const { scene } = useGLTF(`models/items/${name}.glb`);
-    const clone = useMemo(() => SkeletonUtils.clone(scene), [scene])
+    const clone = useMemo(() => SkeletonUtils.clone(scene), [scene]);
+    const width = rotation === 1 || rotation === 3 ? size[1] : size[0];
+    const height = rotation === 1 || rotation === 3 ? size[0] : size[1];
     return <primitive
         object={clone}
         position={[
