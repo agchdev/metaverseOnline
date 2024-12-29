@@ -1,11 +1,11 @@
 
-import React, { useEffect, useMemo, useState } from 'react'
-import { useFrame, useGraph } from '@react-three/fiber'
-import { useGLTF, useAnimations } from '@react-three/drei'
-import { SkeletonUtils } from 'three-stdlib'
-import { useAtom } from 'jotai';
-import { userAtom } from './SocketManager';
-import { useGrid } from '../hooks/useGrid';
+import { useAnimations, useGLTF } from "@react-three/drei";
+import { useFrame, useGraph } from "@react-three/fiber";
+import { useAtom } from "jotai";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { SkeletonUtils } from "three-stdlib";
+import { useGrid } from "../hooks/useGrid";
+import { userAtom } from "./SocketManager";
 
 const MOVEMENT_SPEED = 0.032;
 
@@ -16,28 +16,28 @@ export function AnimatedWoman({
   id,
   ...props
 }) {
-
   const position = useMemo(() => props.position, []);
   const [path, setPath] = useState();
   const { gridToVector3 } = useGrid();
 
-
-  //Necesito que cuando termines de comer comentes toda esta parte, nos vamos a volver locos xd
   useEffect(() => {
     const path = [];
     props.path?.forEach((gridPosition) => {
       path.push(gridToVector3(gridPosition));
-    })
+    });
     setPath(path);
   }, [props.path]);
 
-  const group = React.useRef()
-  const { scene, animations } = useGLTF('/models/Animated Woman.glb')
-  const clone = React.useMemo(() => SkeletonUtils.clone(scene), [scene])
-  const { nodes, materials } = useGraph(clone)
-  const { actions } = useAnimations(animations, group)
+  const group = useRef();
+  const { scene, materials, animations } = useGLTF(
+    "/models/Animated Woman.glb"
+  );
+  // Skinned meshes cannot be re-used in threejs without cloning them
+  const clone = useMemo(() => SkeletonUtils.clone(scene), [scene]);
+  // useGraph creates two flat object collections for nodes and materials
+  const { nodes } = useGraph(clone);
 
-  console.log(actions);
+  const { actions } = useAnimations(animations, group);
   const [animation, setAnimation] = useState("CharacterArmature|Idle");
 
   useEffect(() => {
@@ -45,7 +45,7 @@ export function AnimatedWoman({
     return () => actions[animation]?.fadeOut(0.32);
   }, [animation]);
 
-  const [user] = useAtom(userAtom)
+  const [user] = useAtom(userAtom);
 
   useFrame((state) => {
     if (path?.length && group.current.position.distanceTo(path[0]) > 0.1) {
@@ -57,9 +57,9 @@ export function AnimatedWoman({
       group.current.position.sub(direction);
       group.current.lookAt(path[0]);
       setAnimation("CharacterArmature|Run");
-    } else if(path?.length){
+    } else if (path?.length) {
       path.shift();
-    }else{
+    } else {
       setAnimation("CharacterArmature|Idle");
     }
     if (id === user) {
@@ -68,13 +68,23 @@ export function AnimatedWoman({
       state.camera.position.z = group.current.position.z + 8;
       state.camera.lookAt(group.current.position);
     }
-  })
+  });
 
   return (
-    <group ref={group} {...props} position={position} dispose={null} name={`character-${id}`}>
+    <group
+      ref={group}
+      {...props}
+      position={position}
+      dispose={null}
+      name={`character-${id}`}
+    >
       <group name="Root_Scene">
         <group name="RootNode">
-          <group name="CharacterArmature" rotation={[-Math.PI / 2, 0, 0]} scale={100}>
+          <group
+            name="CharacterArmature"
+            rotation={[-Math.PI / 2, 0, 0]}
+            scale={100}
+          >
             <primitive object={nodes.Root} />
           </group>
           <group name="Casual_Body" rotation={[-Math.PI / 2, 0, 0]} scale={100}>
@@ -84,7 +94,7 @@ export function AnimatedWoman({
               material={materials.White}
               skeleton={nodes.Casual_Body_1.skeleton}
             >
-              <meshStandardMaterial color={topColor} /> {/* De esta manera se cambia por lo que introduzcamos nosotrosa o el propio usuario */}
+              <meshStandardMaterial color={topColor} />
             </skinnedMesh>
             <skinnedMesh
               name="Casual_Body_2"
@@ -120,9 +130,7 @@ export function AnimatedWoman({
               material={materials.Hair_Blond}
               skeleton={nodes.Casual_Head_2.skeleton}
             >
-              <meshStandardMaterial
-                color={hairColor}
-              />
+              <meshStandardMaterial color={hairColor} />
             </skinnedMesh>
             <skinnedMesh
               name="Casual_Head_3"
@@ -142,14 +150,15 @@ export function AnimatedWoman({
             geometry={nodes.Casual_Legs.geometry}
             material={materials.Orange}
             skeleton={nodes.Casual_Legs.skeleton}
-            rotation={[-Math.PI / 2, 0, 0]} scale={100}
+            rotation={[-Math.PI / 2, 0, 0]}
+            scale={100}
           >
             <meshStandardMaterial color={bottomColor} />
           </skinnedMesh>
         </group>
       </group>
     </group>
-  )
+  );
 }
 
-useGLTF.preload('/models/Animated Woman.glb')
+useGLTF.preload("/models/Animated Woman.glb");
